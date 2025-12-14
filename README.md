@@ -67,8 +67,6 @@ This creates 11 PNG files in `plots/` directory:
 ├── visualize_2x4_campus.py          # Campus layout
 ├── visualize_routing_matrices_clean.py # Routing matrices
 ├── create_cost_heatmaps.py          # Cost heatmaps
-│
-├── claude.md                        # Complete project documentation
 ├── README.md                        # This file
 ├── requirements.txt                 # Python dependencies
 │
@@ -94,14 +92,6 @@ pip install -r requirements.txt
 **Stochastic Capacity (p=20%):** $633, 11 vehicles (5 bikes, 2 medium, 4 long)
 **Multicommodity:** $631, 16 vehicles (10 bikes, 6 long)
 **Multi-Temporal:** $994, 5 vehicles (1 stub, 4 long) across 3 periods
-
-## Documentation
-
-See `claude.md` for complete project documentation including:
-- Mathematical formulations for all three models
-- Detailed model descriptions and usage examples
-- Network configuration and parameters
-- Cost structures and depot modeling
 
 ## License
 
