@@ -224,25 +224,32 @@ def create_visualizations():
     # Create figure with three subplots
     fig, axes = plt.subplots(1, 3, figsize=(20, 7))
 
+    # Fleet composition string
+    fleet_str = ", ".join([f"{count} {name}" for name, count in stats['fleet_by_type'].items() if count > 0])
+
     plot_campus_with_routes(
         axes[0], sim, routes_morning,
-        f"Morning Period\n{pax_morning} passengers, {stats['buses_by_type_period']['morning']['Long Bus'] + stats['buses_by_type_period']['morning']['Stub Bus']} buses",
+        f"Morning Period\n{pax_morning} passengers",
         'morning'
     )
 
     plot_campus_with_routes(
         axes[1], sim, routes_lunch,
-        f"Lunch Period\n{pax_lunch} passengers, {sum(stats['buses_by_type_period']['lunch'].values())} buses",
+        f"Lunch Period\n{pax_lunch} passengers",
         'lunch'
     )
 
     plot_campus_with_routes(
         axes[2], sim, routes_evening,
-        f"Evening Period\n{pax_evening} passengers, {stats['buses_by_type_period']['evening']['Long Bus'] + stats['buses_by_type_period']['evening']['Stub Bus']} buses",
+        f"Evening Period\n{pax_evening} passengers",
         'evening'
     )
 
-    plt.tight_layout()
+    # Add overall title with fleet information
+    fig.suptitle(f"Multi-Temporal Optimization: {stats['total_fleet_size']} Vehicle Fleet ({fleet_str})\nTotal Cost: ${stats['total_cost']:.2f}",
+                 fontsize=16, fontweight='bold', y=0.98)
+
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
 
     # Save figure
     os.makedirs('plots', exist_ok=True)

@@ -1254,11 +1254,43 @@ class MultiTemporalShuttleOptimization:
 
         # Extract parked buses
         for location in all_locations:
-            for bus_type in self.bus_types:
-                for period in self.periods:
-                    park_val = Park[(location, bus_type.name, period)].varValue
-                    if park_val and park_val > 0:
-                        self.parked_buses[(location, bus_type.name, period)] = int(park_val)
+            for bus_type in self.bus_types:  # <--- CRITICAL: Must iterate per bus type
+                for t in range(len(self.periods) - 1):
+                    period_curr = self.periods[t]
+                    period_next = self.periods[t+1]
+                    
+                    # 1. Calculate buses ending at 'location' in 'period_curr'
+                    # Ending = (Parked at start) + (Arriving) - (Departing)
+                    
+                    # Buses starting parked at this location in current period
+                    start_parked = Park[(location, bus_type.name, period_curr)]
+                    
+                    # Buses arriving at this location during current period
+                    arriving = pulp.lpSum([
+                        X[(from_node, location, bus_type.name, period_curr)]
+                        for from_node in self.nodes 
+                        if (from_node, location) in self.cost_matrix
+                    ])
+                    
+                    # Buses departing this location during current period
+                    departing = pulp.lpSum([
+                        X[(location, to_node, bus_type.name, period_curr)]
+                        for to_node in self.nodes
+                        if (location, to_node) in self.cost_matrix
+                    ])
+                    
+                    buses_at_end_of_curr = start_parked + arriving - departing
+        
+                    # 2. Calculate buses starting at 'location' in 'period_next'
+                    # This is simply the Park variable for the next period, 
+                    # assuming 'Park' represents the inventory available at the start of the period.
+                    buses_at_start_of_next = Park[(location, bus_type.name, period_next)]
+        
+                    # 3. Enforce Equality
+                    self.problem += (
+                        buses_at_end_of_curr == buses_at_start_of_next,
+                        f"Inventory_Link_{location}_{bus_type.name}_{period_curr}_{period_next}"
+                    )
 
         self.total_cost = pulp.value(self.problem.objective)
 
